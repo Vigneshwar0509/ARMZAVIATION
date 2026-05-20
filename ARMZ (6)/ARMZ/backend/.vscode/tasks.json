@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Temp Python Version Check",
+			"type": "shell",
+			"command": "cd \"D:\\ARMZ (6)\\ARMZ\\backend\" && python --version",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

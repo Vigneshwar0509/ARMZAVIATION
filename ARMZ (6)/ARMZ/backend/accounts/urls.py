@@ -1,0 +1,43 @@
+from django.urls import path
+
+from accounts.views import (
+    AdminDetailView,
+    AdminsView,
+    AdminLoginView,
+    ForgotPasswordView,
+    GoogleLoginView,
+    LoginView,
+    LogoutView,
+    ProfileView,
+    RefreshTokenView,
+    RegisterView,
+    ResetPasswordView,
+    SendOTPView,
+    UpdateSubscriptionView,
+    UserDetailView,
+    UsersView,
+    VerifyOTPView,
+    VerifyUserView,
+    csrf_cookie,
+)
+
+urlpatterns = [
+    path("auth/register", RegisterView.as_view()),
+    path("auth/login", LoginView.as_view()),
+    path("auth/admin/login", AdminLoginView.as_view()),
+    path("auth/send-otp", SendOTPView.as_view()),
+    path("auth/verify-otp", VerifyOTPView.as_view()),
+    path("auth/google", GoogleLoginView.as_view()),
+    path("auth/forgot-password", ForgotPasswordView.as_view()),
+    path("auth/reset-password", ResetPasswordView.as_view()),
+    path("auth/refresh", RefreshTokenView.as_view()),
+    path("auth/logout", LogoutView.as_view()),
+    path("auth/profile", ProfileView.as_view()),
+    path("auth/csrf", csrf_cookie),
+    path("users", UsersView.as_view()),
+    path("users/<int:user_id>", UserDetailView.as_view()),
+    path("users/<int:user_id>/verify", VerifyUserView.as_view()),
+    path("users/update-subscription", UpdateSubscriptionView.as_view()),
+    path("admins", AdminsView.as_view()),
+    path("admins/<int:admin_id>", AdminDetailView.as_view()),
+]

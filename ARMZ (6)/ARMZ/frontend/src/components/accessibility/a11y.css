@@ -1,0 +1,16 @@
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  padding: 8px 12px;
+  background-color: #111827;
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+.skip-to-main:focus {
+  position: fixed;
+  left: 0;
+  top: 0;
+}

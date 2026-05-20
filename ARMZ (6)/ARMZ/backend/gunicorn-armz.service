@@ -1,0 +1,27 @@
+[Unit]
+Description=Gunicorn service for ARMZ Django backend
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=appuser
+Group=appuser
+WorkingDirectory=/srv/armz/backend
+Environment="DJANGO_SETTINGS_MODULE=config.settings_prod"
+EnvironmentFile=/srv/armz/backend/.env.production
+Environment="PATH=/srv/armz/backend/.venv/bin"
+ExecStart=/srv/armz/backend/.venv/bin/gunicorn config.wsgi:application --config /srv/armz/backend/gunicorn.conf.py.prod
+
+Restart=always
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=30s
+LimitNOFILE=65535
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

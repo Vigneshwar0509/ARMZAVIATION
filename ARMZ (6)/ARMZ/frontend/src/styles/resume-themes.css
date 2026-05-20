@@ -1,0 +1,29 @@
+/* Resume Theme Styles */
+.resume-theme {
+  --theme-color: #2563eb; /* Default blue theme */
+}
+
+/* Theme color utilities */
+.theme-border-b-4 {
+  border-bottom-color: var(--theme-color);
+}
+
+.theme-text {
+  color: var(--theme-color);
+}
+
+.theme-bg {
+  background-color: var(--theme-color);
+}
+
+.theme-border-l-2 {
+  border-left-color: var(--theme-color);
+}
+
+.theme-border-t-12 {
+  border-top-color: var(--theme-color);
+}
+
+.theme-border-2 {
+  border-color: var(--theme-color);
+}

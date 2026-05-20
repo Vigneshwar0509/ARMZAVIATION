@@ -1,0 +1,66 @@
+# Gunicorn Configuration for Production
+
+import multiprocessing
+import os
+
+# Server socket
+bind = "0.0.0.0:8000"
+backlog = 2048
+
+# Worker processes
+workers = multiprocessing.cpu_count() * 2 + 1
+worker_class = "sync"
+worker_connections = 1000
+max_requests = 1000
+max_requests_jitter = 50
+timeout = 60
+keepalive = 5
+
+# Logging
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+
+# Process naming
+proc_name = "armz-backend"
+
+# Security
+limit_request_line = 8190
+limit_request_fields = 32
+limit_request_field_size = 8190
+
+# Server mechanics
+daemon = False
+pidfile = None
+temp_upload_dir = None
+umask = 0
+user = None
+group = None
+tmp_upload_dir = None
+
+# SSL (if needed)
+keyfile = os.getenv("GUNICORN_KEYFILE", None)
+certfile = os.getenv("GUNICORN_CERTFILE", None)
+cert_reqs = 0
+ca_certs = None
+
+# Application
+wsgi_app = "config.wsgi:application"
+preload_app = True
+
+# Server hooks
+def on_starting(server):
+    print(f"✅ Gunicorn starting with {workers} workers")
+
+def when_ready(server):
+    print(f"✅ Gunicorn ready with {workers} workers")
+
+def on_exit(server):
+    print("✅ Gunicorn exiting")
+
+def worker_int(worker):
+    print(f"⚠️  Worker received SIGINT or SIGQUIT")
+
+# Performance tuning
+send_header_buffer_size = 32768
