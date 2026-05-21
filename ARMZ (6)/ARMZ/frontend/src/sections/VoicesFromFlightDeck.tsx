@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Plane, Quote, Star } from "lucide-react";
+import useMarquee from "@/src/hooks/useMarquee";
 
 interface Testimonial {
   quote: string;
@@ -31,6 +32,9 @@ const testimonials: Testimonial[] = [
 ];
 
 export default function VoicesFromFlightDeck() {
+  const marqueeRef = useRef<HTMLDivElement | null>(null);
+  useMarquee(marqueeRef, { speed: 24, pauseOnHover: true });
+
   return (
     <section className="relative py-24 bg-transparent overflow-hidden">
 
@@ -69,67 +73,69 @@ export default function VoicesFromFlightDeck() {
 
         {/* REVIEWS LANE */}
         <div className="relative py-4 overflow-hidden">
-          <div className="flex gap-8 w-max animate-marquee hover:[animation-play-state:paused] pb-6">
+          <div ref={marqueeRef} className="relative w-full overflow-hidden ticker-marquee">
+            <div className="marquee-content flex gap-8 pb-6" style={{ transform: "translate3d(0,0,0)" }}>
 
-            {[...testimonials, ...testimonials].map((t, i) => (
-              <div
-                key={i}
-                className="group w-90 md:w-115 shrink-0 p-px rounded-3xl bg-linear-to-br from-purple-500/30 via-indigo-500/20 to-transparent transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl"
-              >
-                <div className="relative h-full rounded-3xl p-8 backdrop-blur-2xl bg-white/70 border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex flex-col justify-between overflow-hidden">
+              {testimonials.map((t, i) => (
+                <div
+                  key={i}
+                  className="group w-90 md:w-115 shrink-0 p-px rounded-3xl bg-linear-to-br from-purple-500/30 via-indigo-500/20 to-transparent transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl"
+                >
+                  <div className="relative h-full rounded-3xl p-8 backdrop-blur-2xl bg-white/70 border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex flex-col justify-between overflow-hidden">
 
-                  {/* subtle hover glow */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-linear-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
+                    {/* subtle hover glow */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-linear-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
 
-                  {/* TOP */}
-                  <div className="space-y-6 relative z-10">
+                    {/* TOP */}
+                    <div className="space-y-6 relative z-10">
 
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        <Plane className="w-4 h-4 text-purple-600" />
-                        Client Review
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          <Plane className="w-4 h-4 text-purple-600" />
+                          Client Review
+                        </div>
+
+                        <div className="flex items-center gap-1 text-green-600 text-xs font-bold bg-green-50/80 backdrop-blur px-3 py-1 rounded-full shadow-sm">
+                          ✔ Verified
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1 text-green-600 text-xs font-bold bg-green-50/80 backdrop-blur px-3 py-1 rounded-full shadow-sm">
-                        ✔ Verified
+                      <div className="flex gap-4">
+                        <div className="h-10 w-10 rounded-2xl bg-purple-100/60 flex items-center justify-center shrink-0">
+                          <Quote className="w-6 h-6 text-purple-300" />
+                        </div>
+                        <p className="text-gray-800 text-lg font-semibold leading-relaxed tracking-tight">
+                          “{t.quote}”
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
-                      <div className="h-10 w-10 rounded-2xl bg-purple-100/60 flex items-center justify-center shrink-0">
-                        <Quote className="w-6 h-6 text-purple-300" />
+                    {/* FOOTER */}
+                    <div className="mt-10 pt-6 border-t border-gray-200/60 flex justify-between items-end relative z-10">
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
+                          Outcome
+                        </p>
+                        <p className="text-purple-700 font-bold text-base mt-1">
+                          {t.outcome}
+                        </p>
                       </div>
-                      <p className="text-gray-800 text-lg font-semibold leading-relaxed tracking-tight">
-                        “{t.quote}”
-                      </p>
+
+                      <div className="text-right">
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
+                          Region
+                        </p>
+                        <p className="text-gray-900 font-bold text-base mt-1">
+                          {t.region}
+                        </p>
+                      </div>
                     </div>
+
                   </div>
-
-                  {/* FOOTER */}
-                  <div className="mt-10 pt-6 border-t border-gray-200/60 flex justify-between items-end relative z-10">
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
-                        Outcome
-                      </p>
-                      <p className="text-purple-700 font-bold text-base mt-1">
-                        {t.outcome}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
-                        Region
-                      </p>
-                      <p className="text-gray-900 font-bold text-base mt-1">
-                        {t.region}
-                      </p>
-                    </div>
-                  </div>
-
                 </div>
-              </div>
-            ))}
+              ))}
 
+            </div>
           </div>
         </div>
 
