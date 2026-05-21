@@ -398,7 +398,12 @@ function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const scrollTarget = document.scrollingElement || document.documentElement || document.body;
+    if (!scrollTarget) return;
+
+    requestAnimationFrame(() => {
+      scrollTarget.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    });
   }, [pathname]);
 
   return null;

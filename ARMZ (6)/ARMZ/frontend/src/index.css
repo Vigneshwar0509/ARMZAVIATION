@@ -225,17 +225,42 @@
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-50%,0,0); }
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-  will-change: transform;
+/* NSE-like smooth ticker: use a long constant duration and hardware-accelerated transforms */
+:root {
+  --marquee-duration: 100s; /* tweak this for speed (higher = slower) */
 }
 
 .ticker-marquee {
-  animation-duration: 42s;
+  contain: paint;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.marquee-content {
+  display: inline-flex;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.marquee-content > * {
+  pointer-events: auto;
+}
+
+.ticker-marquee:hover .marquee-content,
+.ticker-marquee:focus-within .marquee-content {
+  animation-play-state: paused;
+}
+
+/* Remove accidental transitions inside the moving container to prevent jank */
+.ticker-marquee .transition-all,
+.ticker-marquee [class*="transition-"] {
+  transition: none !important;
 }
 
 @layer utilities {

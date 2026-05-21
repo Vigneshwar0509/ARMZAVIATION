@@ -74,7 +74,7 @@ export default function Contact() {
                 {[
                   { icon: Mail, title: "Email Us", detail: "ceo@armzaviation.com", sub: "Response within 24 hours", href: "mailto:ceo@armzaviation.com" },
                   { icon: Phone, title: "Call Us", detail: "+91 8220551116", sub: "Also available: +91 9962551116 | +91 9962751116 | +91 9092551116", href: "tel:+918220551116" },
-                  { icon: MapPin, title: "Visit Us", detail: "Plot No 2, 2nd Floor, VSR Complex, Taramani Link Road", sub: "Velachery, Chennai - 600042", href: "https://www.armz.in" }
+                  { icon: MapPin, title: "Visit Us", detail: "Plot No 2, 2nd Floor, VSR Complex, Taramani Link Road", sub: "Velachery, Chennai - 600042", href: "https://www.google.com/maps/place/ARMZ+AVIATION+(P)+LTD+-+Best+Aviation+Training+Institute/@12.9780396,80.2215581,17z" }
                 ].map((item, idx) => (
                   <a 
                     key={idx} 
@@ -97,7 +97,7 @@ export default function Contact() {
 
               {/* Map Location */}
               <a 
-                href="https://maps.google.com/?q=12.952369,80.250249&z=15" 
+                href="https://www.google.com/maps/place/ARMZ+AVIATION+(P)+LTD+-+Best+Aviation+Training+Institute/@12.9780396,80.2215581,17z" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="glass-card overflow-hidden rounded-3xl! border border-slate-200 h-80 group flex flex-col items-center justify-center transition-all duration-300 cursor-pointer relative"

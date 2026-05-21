@@ -434,7 +434,7 @@ export default function Hero() {
                     </Link>
                     <Link to="/contact" className="block">
                       <Button variant="outline" className="h-12 px-8 rounded-lg border border-purple-300 bg-transparent text-slate-700 font-bold hover:bg-purple-100/50 transition-all duration-300">
-                        GLOBAL CONCLAVE 2028 →
+                        GLOBAL CONCLAVE 2026 →
                       </Button>
                     </Link>
                   </motion.div>
