@@ -106,17 +106,40 @@ class SendOTPView(APIView):
     throttle_classes = [OTPRateThrottle]
 
     def post(self, request):
-        serializer = SendOTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        payload = account_services.send_otp(serializer.validated_data)
-        return Response(
-            build_response_payload(
-                success=True,
-                message=payload.get("message", "OTP sent successfully"),
-                data=payload,
-                errors=None,
+        try:
+            serializer = SendOTPSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            payload = account_services.send_otp(serializer.validated_data)
+            return Response(
+                build_response_payload(
+                    success=True,
+                    message=payload.get("message", "OTP sent successfully"),
+                    data=payload,
+                    errors=None,
+                )
             )
-        )
+        except ValidationError as e:
+            logger.warning("SendOTP validation error: %s", str(e))
+            return Response(
+                build_response_payload(
+                    success=False,
+                    message="Invalid request data",
+                    data=None,
+                    errors=e.detail if hasattr(e, 'detail') else str(e),
+                ),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error("SendOTP endpoint error: %s", str(e))
+            return Response(
+                build_response_payload(
+                    success=False,
+                    message="Failed to send OTP. Please try again later.",
+                    data=None,
+                    errors=str(e),
+                ),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class VerifyOTPView(APIView):

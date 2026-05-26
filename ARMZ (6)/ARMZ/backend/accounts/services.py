@@ -122,14 +122,16 @@ def bootstrap_prime_admin():
 
 def queue_otp_email(email, otp_code, otp_type):
     if not email:
-        return
+        return False
 
     recipient_name = email.split("@")[0].replace(".", " ").title()
     subject, body, html_body = build_otp_email(recipient_name, otp_code, otp_type)
     try:
         queue_email(subject, body, [email], html_message=html_body)
+        return True
     except Exception as exc:
-        logger.exception("Failed to queue OTP email to %s: %s", email, exc)
+        logger.error("Failed to queue OTP email to %s: %s", email, str(exc))
+        return False
 
 
 @transaction.atomic
@@ -170,7 +172,11 @@ def send_otp(data):
 
     user = user_by_email(email) if email else None
     otp_obj = OTPCode.create_code(email=email, phone=phone, otp_type=otp_type, user=user)
-    queue_otp_email(email, otp_obj.otp, otp_type)
+    
+    if email:
+        email_sent = queue_otp_email(email, otp_obj.otp, otp_type)
+        if not email_sent:
+            logger.warning("OTP email send failed for %s, but OTP code created", email)
 
     payload = {"message": "OTP sent successfully", "expiresAt": otp_obj.expires_at}
     if settings.DEBUG:

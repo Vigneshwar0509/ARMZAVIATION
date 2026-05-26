@@ -167,23 +167,22 @@ def send_email_async(subject, message, recipients, html_message=None, attachment
             "Content-Type": "application/json",
         }
         
-        response = requests.post(BREVO_API_ENDPOINT, json=payload, headers=headers, timeout=30)
-        
-        if response.status_code in (200, 201):
-            logger.info("Email sent successfully via Brevo API to %s", recipients)
-            return 1
-        else:
-            error_detail = response.text
-            logger.error("Brevo API error (status %d): %s", response.status_code, error_detail)
-            if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
-                raise Exception(f"Brevo API error: {response.status_code} - {error_detail}")
-            return 0
+        logger.info("Sending email via Brevo API to %s", recipients)
+        try:
+            response = requests.post(BREVO_API_ENDPOINT, json=payload, headers=headers, timeout=8)
+            logger.info("Brevo API response status: %d", response.status_code)
             
-    except requests.exceptions.RequestException as e:
-        logger.exception("Network error sending email via Brevo API to %s: %s", recipients, e)
-        if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
-            raise
-        return 0
+            if response.status_code in (200, 201):
+                logger.info("Email sent successfully via Brevo API to %s", recipients)
+                return 1
+            else:
+                error_detail = response.text
+                logger.error("Brevo API error (status %d): %s", response.status_code, error_detail)
+                return 0
+                
+        except requests.exceptions.RequestException as e:
+            logger.error("Brevo API request failed for %s: %s", recipients, str(e))
+            return 0
     except Exception as e:
         logger.exception("Failed to send email via Brevo API to %s: %s", recipients, e)
         if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
