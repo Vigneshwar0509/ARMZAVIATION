@@ -106,6 +106,20 @@ class SendOTPView(APIView):
     throttle_classes = [OTPRateThrottle]
 
     def post(self, request):
+        # FEATURE FLAG: EMAIL OTP VERIFICATION
+        # If OTP is disabled (e.g., due to network restrictions), return error
+        if not getattr(settings, "ENABLE_EMAIL_OTP", False):
+            logger.warning("SendOTP endpoint called but ENABLE_EMAIL_OTP is disabled")
+            return Response(
+                build_response_payload(
+                    success=False,
+                    message="Email verification is currently unavailable. Please try again later.",
+                    data=None,
+                    errors="OTP feature disabled",
+                ),
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
         try:
             serializer = SendOTPSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -147,6 +161,20 @@ class VerifyOTPView(APIView):
     throttle_classes = [OTPVerifyRateThrottle]
 
     def post(self, request):
+        # FEATURE FLAG: EMAIL OTP VERIFICATION
+        # If OTP is disabled, return error
+        if not getattr(settings, "ENABLE_EMAIL_OTP", False):
+            logger.warning("VerifyOTP endpoint called but ENABLE_EMAIL_OTP is disabled")
+            return Response(
+                build_response_payload(
+                    success=False,
+                    message="Email verification is currently unavailable. Please try again later.",
+                    data=None,
+                    errors="OTP feature disabled",
+                ),
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
         serializer = VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = account_services.verify_otp(serializer.validated_data)

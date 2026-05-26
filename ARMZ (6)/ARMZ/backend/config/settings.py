@@ -257,6 +257,12 @@ EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 CONTACT_INBOX_EMAIL = env("CONTACT_INBOX_EMAIL")
 BREVO_API_KEY = env("BREVO_API_KEY", default="")
+
+# Feature flag to enable/disable email OTP verification
+# Set to False in production if external SMTP/email services are unreachable
+# Set to True in development for testing OTP flow
+ENABLE_EMAIL_OTP = env.bool("ENABLE_EMAIL_OTP", default=False)
+
 AUTH_COOKIE_ACCESS = env("AUTH_COOKIE_ACCESS", default="access_token")
 AUTH_COOKIE_REFRESH = env("AUTH_COOKIE_REFRESH", default="refresh_token")
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER")

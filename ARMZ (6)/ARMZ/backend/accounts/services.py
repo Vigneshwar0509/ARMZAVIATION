@@ -137,6 +137,16 @@ def queue_otp_email(email, otp_code, otp_type):
 @transaction.atomic
 def register_user(serializer):
     user = serializer.save()
+    
+    # FEATURE FLAG: EMAIL OTP VERIFICATION
+    # If OTP is disabled (e.g., due to network restrictions), skip OTP and mark user as verified
+    if not getattr(settings, "ENABLE_EMAIL_OTP", False):
+        user.is_verified = True
+        user.save(update_fields=["is_verified"])
+        ensure_student_profile(user)
+        return build_auth_payload(user), RefreshToken.for_user(user)
+    
+    # OTP ENABLED: Create and send OTP
     otp_obj = OTPCode.create_code(email=user.email, otp_type="email", user=user)
     queue_otp_email(user.email, otp_obj.otp, "email")
 
@@ -158,6 +168,16 @@ def login_user(user):
 def admin_login_payload(user):
     if not user.is_admin_user:
         raise PermissionDenied("Admin access denied")
+    
+    # FEATURE FLAG: EMAIL OTP VERIFICATION
+    # If OTP is disabled, skip OTP requirement for admin login
+    if not getattr(settings, "ENABLE_EMAIL_OTP", False):
+        ensure_student_profile(user)
+        mark_user_logged_in(user)
+        payload = build_auth_payload(user)
+        return payload[0]  # Return only the payload dict, not the refresh token
+    
+    # OTP ENABLED: Require OTP for admin login
     return {
         "message": "Admin credentials verified. OTP will be sent to your email.",
         "user": serialize_admin_user(user),
@@ -212,14 +232,23 @@ def verify_otp(data):
     user.is_verified = True
     user.save(update_fields=["is_verified"])
     ensure_student_profile(user)
-    mark_user_logged_in(user)
-    return build_auth_payload(user)
-
-
 def send_password_reset(email):
     normalized_email = email.strip().lower()
     user = user_by_email(normalized_email)
     if user:
+        # FEATURE FLAG: EMAIL OTP VERIFICATION
+        # If OTP is disabled, create a password reset token directly instead of OTP
+        if not getattr(settings, "ENABLE_EMAIL_OTP", False):
+            reset_token = PasswordResetToken.create_for_user(user)
+            payload = {
+                "message": "Password reset instructions sent",
+                "token": reset_token.token  # In dev, return token; in prod, would send via email
+            }
+            if settings.DEBUG:
+                payload["token"] = reset_token.token
+            return payload
+        
+        # OTP ENABLED: Create and send password reset OTP
         otp_obj = OTPCode.create_code(email=normalized_email, otp_type="password_reset", user=user)
         queue_otp_email(normalized_email, otp_obj.otp, "password_reset")
         payload = {"message": "Password reset instructions sent"}
@@ -227,9 +256,6 @@ def send_password_reset(email):
             payload["otp"] = otp_obj.otp
         return payload
     return {"message": "Password reset instructions sent"}
-
-
-@transaction.atomic
 def reset_password(token, new_password):
     token_obj = valid_password_reset_token(token)
     if not token_obj or token_obj.expires_at < timezone.now():
