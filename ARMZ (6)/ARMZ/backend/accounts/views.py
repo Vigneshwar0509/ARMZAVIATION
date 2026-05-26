@@ -81,11 +81,21 @@ class AdminLoginView(APIView):
         except Exception as exc:
             logger.exception("Admin login failed for email %s", request.data.get("email"))
             raise
+
+        response_data = {
+            "user": payload.get("user"),
+            "requiresOTP": payload.get("requiresOTP"),
+        }
+        if payload.get("token"):
+            response_data["token"] = payload.get("token")
+        if payload.get("refreshToken"):
+            response_data["refreshToken"] = payload.get("refreshToken")
+
         return Response(
             build_response_payload(
                 success=True,
                 message=payload.get("message", "Admin login successful"),
-                data={"user": payload.get("user"), "requiresOTP": payload.get("requiresOTP")},
+                data=response_data,
                 errors=None,
             )
         )
@@ -98,7 +108,15 @@ class SendOTPView(APIView):
     def post(self, request):
         serializer = SendOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(account_services.send_otp(serializer.validated_data))
+        payload = account_services.send_otp(serializer.validated_data)
+        return Response(
+            build_response_payload(
+                success=True,
+                message=payload.get("message", "OTP sent successfully"),
+                data=payload,
+                errors=None,
+            )
+        )
 
 
 class VerifyOTPView(APIView):
@@ -111,9 +129,24 @@ class VerifyOTPView(APIView):
         result = account_services.verify_otp(serializer.validated_data)
         if isinstance(result, tuple):
             payload, refresh = result
-            response = Response(payload)
+            response = Response(
+                build_response_payload(
+                    success=True,
+                    message=payload.get("message", "OTP verified successfully"),
+                    data=payload,
+                    errors=None,
+                )
+            )
             return set_auth_cookies(response, refresh)
-        return Response(result)
+
+        return Response(
+            build_response_payload(
+                success=True,
+                message="OTP verified successfully",
+                data=result,
+                errors=None,
+            )
+        )
 
 
 class ForgotPasswordView(APIView):
@@ -212,7 +245,14 @@ class GoogleLoginView(APIView):
         serializer = GoogleLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payload, refresh = account_services.google_login(serializer.validated_data["idToken"])
-        response = Response(payload)
+        response = Response(
+            build_response_payload(
+                success=True,
+                message="Google login successful",
+                data=payload,
+                errors=None,
+            )
+        )
         return set_auth_cookies(response, refresh)
 
 

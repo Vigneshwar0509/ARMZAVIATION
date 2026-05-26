@@ -1,12 +1,14 @@
 import logging
 from html import escape
 
+import requests
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives, send_mail
 
 from services.tasks import shared_task
 
 logger = logging.getLogger(__name__)
+
+BREVO_API_ENDPOINT = "https://api.brevo.com/v3/smtp/email"
 
 
 def _build_brand_html(subject: str, body_lines: list[str], details: list[tuple[str, str]] = None, footer_lines: list[str] = None) -> str:
@@ -116,37 +118,77 @@ def build_otp_email(recipient_name: str, otp_code: str, otp_type: str = "email")
 
 @shared_task()
 def send_email_async(subject, message, recipients, html_message=None, attachments=None, reply_to=None):
+    """Send email via Brevo Transactional Email API."""
     if not recipients:
         return 0
+    
+    brevo_api_key = getattr(settings, "BREVO_API_KEY", "").strip()
+    if not brevo_api_key:
+        error_msg = "BREVO_API_KEY not configured. Cannot send email."
+        logger.error(error_msg)
+        if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
+            raise ValueError(error_msg)
+        return 0
+    
     try:
-        if html_message or reply_to or attachments:
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=recipients,
-            )
-            if reply_to:
-                email.reply_to = reply_to
-            if html_message:
-                email.attach_alternative(html_message, "text/html")
-            if attachments:
-                for attachment in attachments:
-                    email.attach(*attachment)
-            return email.send(fail_silently=False)
-
-        return send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipients,
-            fail_silently=False,
-        )
-    except Exception:
-        logger.exception("Failed to send email to %s", recipients)
-        if getattr(settings, "EMAIL_FAIL_SILENTLY", False):
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@armz.local")
+        
+        # Prepare recipient list
+        to_recipients = [{"email": email} for email in (recipients if isinstance(recipients, list) else [recipients])]
+        
+        # Prepare reply-to
+        reply_to_list = None
+        if reply_to:
+            reply_to_list = [{"email": email} for email in (reply_to if isinstance(reply_to, list) else [reply_to])]
+        
+        # Build Brevo API payload
+        payload = {
+            "sender": {"email": from_email},
+            "to": to_recipients,
+            "subject": subject,
+            "textContent": message,
+        }
+        
+        # Add HTML content if provided
+        if html_message:
+            payload["htmlContent"] = html_message
+        
+        # Add reply-to if provided
+        if reply_to_list:
+            payload["replyTo"] = reply_to_list
+        
+        # Note: Brevo API doesn't support attachments in the same way.
+        # Attachments are currently skipped. If needed, implement via separate API calls.
+        if attachments:
+            logger.warning("Attachments are not supported with Brevo API. Email will be sent without attachments.")
+        
+        headers = {
+            "api-key": brevo_api_key,
+            "Content-Type": "application/json",
+        }
+        
+        response = requests.post(BREVO_API_ENDPOINT, json=payload, headers=headers, timeout=30)
+        
+        if response.status_code in (200, 201):
+            logger.info("Email sent successfully via Brevo API to %s", recipients)
+            return 1
+        else:
+            error_detail = response.text
+            logger.error("Brevo API error (status %d): %s", response.status_code, error_detail)
+            if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
+                raise Exception(f"Brevo API error: {response.status_code} - {error_detail}")
             return 0
-        raise
+            
+    except requests.exceptions.RequestException as e:
+        logger.exception("Network error sending email via Brevo API to %s: %s", recipients, e)
+        if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
+            raise
+        return 0
+    except Exception as e:
+        logger.exception("Failed to send email via Brevo API to %s: %s", recipients, e)
+        if not getattr(settings, "EMAIL_FAIL_SILENTLY", False):
+            raise
+        return 0
 
 
 def queue_email(subject, message, recipients, html_message=None, attachments=None, reply_to=None):

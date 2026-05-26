@@ -49,7 +49,8 @@ class User(AbstractUser):
 
     @property
     def is_prime_admin(self):
-        prime_admin_email = getattr(settings, "PRIME_ADMIN_EMAIL", "rkpk110011@gmail.com").strip().lower()
+        prime_admin_email = getattr(settings, "PRIME_ADMIN_EMAIL", "") or ""
+        prime_admin_email = str(prime_admin_email).strip().lower()
         return self.is_superuser or self.normalized_email == prime_admin_email
 
     @property

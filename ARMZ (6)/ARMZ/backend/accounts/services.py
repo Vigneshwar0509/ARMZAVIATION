@@ -83,6 +83,43 @@ def ensure_prime_admin(request):
         raise PermissionDenied("Only the prime admin can manage admin accounts")
 
 
+def bootstrap_prime_admin():
+    from django.db import ProgrammingError, OperationalError
+
+    prime_admin_email = getattr(settings, "PRIME_ADMIN_EMAIL", "") or ""
+    prime_admin_password = getattr(settings, "PRIME_ADMIN_PASSWORD", "") or ""
+    if not prime_admin_email or not prime_admin_password:
+        return
+
+    normalized_email = prime_admin_email.strip().lower()
+    if not normalized_email:
+        return
+
+    try:
+        user = user_by_email(normalized_email)
+    except (ProgrammingError, OperationalError):
+        return
+
+    if not user:
+        user = User(
+            email=normalized_email,
+            username=normalized_email,
+            first_name=normalized_email.split("@", 1)[0],
+            role="admin",
+            is_verified=True,
+            profile_complete=True,
+            is_active=True,
+        )
+    elif not user.is_admin_user:
+        user.role = "admin"
+        user.is_verified = True
+        user.profile_complete = True
+        user.is_active = True
+
+    user.set_password(prime_admin_password)
+    user.save()
+
+
 def queue_otp_email(email, otp_code, otp_type):
     if not email:
         return
@@ -317,6 +354,10 @@ def delete_admin(admin_id):
 
 def google_login(id_token_value):
     allowed_client_ids = getattr(settings, "GOOGLE_CLIENT_IDS", [])
+    if isinstance(allowed_client_ids, str):
+        allowed_client_ids = [allowed_client_ids]
+    allowed_client_ids = [client_id.strip() for client_id in allowed_client_ids if client_id and client_id.strip()]
+
     if not allowed_client_ids:
         raise ValidationError({"google": "Google sign-in is not configured on the server"})
 

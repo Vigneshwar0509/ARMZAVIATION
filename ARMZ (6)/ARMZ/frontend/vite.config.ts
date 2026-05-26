@@ -77,12 +77,6 @@ export default defineConfig(({mode}) => {
           secure: false,
         },
       },
-      middlewares: [
-        (req: any, res: any, next: any) => {
-          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-          next();
-        },
-      ],
     },
     logger: {
       warn: (msg: string, options?: any) => {
