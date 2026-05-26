@@ -172,11 +172,13 @@ def send_otp(data):
 
     user = user_by_email(email) if email else None
     otp_obj = OTPCode.create_code(email=email, phone=phone, otp_type=otp_type, user=user)
-    
+
     if email:
         email_sent = queue_otp_email(email, otp_obj.otp, otp_type)
         if not email_sent:
-            logger.warning("OTP email send failed for %s, but OTP code created", email)
+            logger.error("OTP email queue failed for %s", email)
+            otp_obj.delete()
+            raise ValidationError({"email": "Unable to send OTP email. Please check email settings and try again."})
 
     payload = {"message": "OTP sent successfully", "expiresAt": otp_obj.expires_at}
     if settings.DEBUG:
