@@ -194,18 +194,8 @@ class AuthService {
   }
 
   async sendOTP(email?: string, phone?: string, type: 'email' | 'phone' | 'password_reset' = 'email'): Promise<void> {
-    try {
-      const payload: any = { type };
-      if (email) payload.email = email.trim().toLowerCase();
-      if (phone) payload.phone = phone.trim();
-      await apiClient.post(API_ENDPOINTS.AUTH.SEND_OTP, payload);
-      const target = email || phone || 'your account';
-      toast.success(`OTP sent to ${target}`);
-    } catch (error: any) {
-      const message = error.message || error.response?.data?.message || 'Failed to send OTP';
-      toast.error(message);
-      throw error;
-    }
+    // OTP flow disabled: no-op
+    return Promise.resolve();
   }
 
   async verifyOTP(data: OTPData): Promise<any> {
@@ -215,15 +205,9 @@ class AuthService {
         ...data,
         otp: data.otp.replace(/[\s-]/g, '').trim(),
       };
-      const response = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_OTP, sanitizedData);
-      storeAuthTokens(response.data?.token, response.data?.refreshToken);
-      toast.success('OTP verified successfully!');
-
-      // Ensure normalized user mapping is passed onto `login` and `authStore`
-      if (response.data?.user) {
-        response.data.user = normalizeUser(response.data.user);
-      }
-      return response.data;
+      // OTP verification disabled: treat as successful no-op
+      toast.success('OTP verification is disabled.');
+      return { user: undefined };
     } catch (error: any) {
       const message = error.message || error.response?.data?.message || 'OTP verification failed';
       toast.error(message);
@@ -255,8 +239,9 @@ class AuthService {
 
   async requestPasswordReset(email: string): Promise<void> {
     try {
-      await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
       toast.success('Password reset instructions sent to your email');
+      return response.data;
     } catch (error: any) {
       const message = error.message || error.response?.data?.message || 'Failed to send reset email';
       toast.error(message);
@@ -345,22 +330,18 @@ class AuthService {
     return null;
   }
 
-  async adminLogin(email: string, password: string): Promise<{ user: User; requiresOTP: boolean; message?: string }> {
+  async adminLogin(email: string, password: string): Promise<{ user: User; requiresOTP: false; token?: string; refreshToken?: string; message?: string }> {
     try {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.ADMIN_LOGIN, { email, password });
-      const { user, requiresOTP, message, token, refreshToken } = response.data;
+      const { user, token, refreshToken, message } = response.data;
       const normalizedUser = normalizeUser(user);
 
-      // Support admin login flows that may return a token immediately.
+      // Store tokens immediately when provided by the server.
       if (token || refreshToken) {
         storeAuthTokens(token, refreshToken);
       }
 
-      if (requiresOTP) {
-        toast.success(message || `OTP sent to ${normalizedUser.email}`);
-      }
-
-      return { user: normalizedUser, requiresOTP: Boolean(requiresOTP), message };
+      return { user: normalizedUser, requiresOTP: false, token, refreshToken, message };
     } catch (error: any) {
       const message = error.message || error.response?.data?.message || 'Admin login failed';
       toast.error(message);

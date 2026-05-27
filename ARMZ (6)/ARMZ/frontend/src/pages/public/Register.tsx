@@ -11,7 +11,7 @@ import { paymentService } from "../../services/paymentService";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import SEO from "../../components/common/SEO";
-import OTPVerification from "../../components/auth/OTPVerification";
+// OTPVerification removed: server-side OTP disabled; flow proceeds directly
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
@@ -144,7 +144,6 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [accountData, setAccountData] = useState<RegisterFormValues | null>(null);
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [paymentDebug, setPaymentDebug] = useState<PaymentDebugState>({
     lastError: '',
     fallbackRetryAttempted: false,
@@ -197,7 +196,7 @@ export default function Register() {
   const onAccountSubmit = async (data: RegisterFormValues) => {
     setLoading(true);
     try {
-      await authService.register({
+      const authPayload = await authService.register({
         name: data.fullName,
         email: data.email,
         password: data.password,
@@ -218,7 +217,15 @@ export default function Register() {
         companyDetails: data.companyDetails,
       });
       setAccountData(data);
-      setShowOTPVerification(true);
+      // OTP disabled server-side: proceed directly
+      if (authPayload?.user) {
+        login(authPayload.user);
+      }
+      if (data.role === 'employer') {
+        setStep(5);
+      } else {
+        setStep(2);
+      }
     } catch (error) {
       // authService already surfaces a user-facing message.
     } finally {
@@ -345,23 +352,7 @@ export default function Register() {
     }
   };
 
-  if (showOTPVerification && accountData) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <SEO title="Verify Email" description="Verify your email address" />
-        <div className="max-w-md w-full glass-card p-8 rounded-3xl shadow-2xl border-white/50">
-          <OTPVerification
-            email={accountData.email}
-            type="email"
-            onSuccess={handleOTPVerified}
-            onCancel={() => setShowOTPVerification(false)}
-            title="Verify Your Email"
-            description={`We've sent a 6-digit code to ${accountData.email}`}
-          />
-        </div>
-      </div>
-    );
-  }
+ 
 
   return (
     <div className="min-h-screen pt-20 bg-transparent flex items-center justify-center px-4 pb-12">

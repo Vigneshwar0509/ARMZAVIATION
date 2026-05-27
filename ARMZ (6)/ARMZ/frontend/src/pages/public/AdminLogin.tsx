@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -6,10 +6,9 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Shield, Lock, Mail, ArrowRight, Loader2, Plane, Sparkles } from "lucide-react";
 import { useAuthStore } from "@/src/store/authStore";
 import { authService } from "@/src/services/authService";
-import { getDefaultRouteForUser } from "@/src/lib/subscription";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
-import OTPVerification from "@/src/components/auth/OTPVerification";
+// OTP verification removed for VPS deployment (server-side OTP disabled)
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address").toLowerCase(),
@@ -22,8 +21,7 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading, setLoading, setError } = useAuthStore();
-  const [showOTP, setShowOTP] = useState(false);
-  const [adminData, setAdminData] = useState<{user: any, email: string} | null>(null);
+  // OTP flow disabled: admin login will navigate directly to dashboard
 
   const {
     register,
@@ -44,13 +42,9 @@ export default function AdminLogin() {
     setError(null);
     try {
       const response = await authService.adminLogin(data.email, data.password);
-      if (response.requiresOTP) {
-        setAdminData({ user: response.user, email: data.email });
-        setShowOTP(true);
-      } else {
-        login(response.user);
-        navigate(from);
-      }
+      // Always treat admin login as successful (OTP disabled server-side)
+      login(response.user);
+      navigate(from);
     } catch (err: any) {
       const message = err.message || "Invalid admin credentials";
       setError(message);
@@ -59,39 +53,7 @@ export default function AdminLogin() {
       setLoading(false);
     }
   };
-
-  if (showOTP && adminData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-purple-50/20 relative overflow-hidden pt-20 pb-20">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[250px] h-[250px] bg-purple-500/10 rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-[200px] h-[200px] bg-fuchsia-500/10 rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[180px] pointer-events-none" />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md px-4 relative z-10"
-        >
-          <div className="glass-card border border-white/60 bg-white/70 backdrop-blur-xl rounded-4xl p-8 shadow-lg">
-            <OTPVerification
-              email={adminData.email}
-              type="email"
-              onSuccess={(result) => {
-                login(result?.user ? result.user : adminData.user);
-                navigate(from);
-              }}
-              onCancel={() => {
-                setShowOTP(false);
-                setAdminData(null);
-              }}
-              title="Admin 2FA Verification"
-              description={`Enter the security code sent to ${adminData.email} to verify your identity.`}
-            />
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
+ 
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-purple-50/20 relative overflow-hidden pt-20 pb-20">

@@ -1,0 +1,1 @@
+import{r as e}from"./vendor-react-Bip3nFCx.js";import{ad as r}from"./index-BzfjVpKe.js";const s=()=>{const t=e.useContext(r);if(!t)throw new Error("usePayment must be used within PaymentContext provider");return t};export{s as u};

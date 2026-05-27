@@ -17,6 +17,11 @@ from services.notification_dispatch import send_direct_notification
 from services.utils import build_plan_code
 
 logger = logging.getLogger(__name__)
+# Force-disable email OTP for VPS deployment: ensure the server treats OTP as disabled
+try:
+    setattr(settings, "ENABLE_EMAIL_OTP", False)
+except Exception:
+    pass
 
 
 def build_auth_payload(user):

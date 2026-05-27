@@ -23,6 +23,11 @@ from accounts.serializers import (
 from accounts import services as account_services
 
 logger = logging.getLogger(__name__)
+# Force-disable email OTP for VPS deployment: ensure the server treats OTP as disabled
+try:
+    setattr(settings, "ENABLE_EMAIL_OTP", False)
+except Exception:
+    pass
 from config.auth_cookies import clear_auth_cookies, set_auth_cookies
 from config.response import build_response_payload
 from config.throttling import (
@@ -84,7 +89,6 @@ class AdminLoginView(APIView):
 
         response_data = {
             "user": payload.get("user"),
-            "requiresOTP": payload.get("requiresOTP"),
         }
         if payload.get("token"):
             response_data["token"] = payload.get("token")

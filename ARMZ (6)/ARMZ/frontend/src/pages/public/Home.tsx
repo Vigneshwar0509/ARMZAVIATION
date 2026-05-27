@@ -1,6 +1,5 @@
 import Hero from "@/src/sections/Hero";
 import Stats from "@/src/sections/Stats";
-import PricingPlans from "@/src/sections/PricingPlans";
 import FeaturedEmployers from "@/src/sections/FeaturedEmployers";
 import TrustSection from "@/src/sections/TrustSection";
 import VoicesFromFlightDeck from "@/src/sections/VoicesFromFlightDeck";
@@ -13,9 +12,6 @@ export default function Home() {
       </div>
       <div id="stats">
         <Stats />
-      </div>
-      <div id="pricing">
-        <PricingPlans />
       </div>
       <div id="featured-employers">
         <FeaturedEmployers />

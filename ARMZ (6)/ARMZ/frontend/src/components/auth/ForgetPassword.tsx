@@ -8,7 +8,6 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { authService } from '../../services/authService';
 import toast from 'react-hot-toast';
-import OTPVerification from './OTPVerification';
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -31,7 +30,7 @@ interface ForgetPasswordProps {
 }
 
 export default function ForgetPassword({ onBack, onSuccess }: ForgetPasswordProps) {
-  const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
+  const [step, setStep] = useState<'email' | 'password'>('email');
   const [email, setEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,9 +46,16 @@ export default function ForgetPassword({ onBack, onSuccess }: ForgetPasswordProp
   const handleEmailSubmit = async (data: EmailFormData) => {
     setIsLoading(true);
     try {
-      await authService.requestPasswordReset(data.email);
+      const res = await authService.requestPasswordReset(data.email);
       setEmail(data.email);
-      setStep('otp');
+      // If backend returns a token (OTP disabled), go straight to password reset
+      if (res && res.token) {
+        setResetToken(res.token);
+        setStep('password');
+      } else {
+        // Fallback: proceed to password step and expect token flow handled elsewhere
+        setStep('password');
+      }
     } catch (error) {
       console.error('Password reset request failed:', error);
     } finally {
@@ -150,16 +156,7 @@ export default function ForgetPassword({ onBack, onSuccess }: ForgetPasswordProp
     </motion.div>
   );
 
-  const renderOTPStep = () => (
-    <OTPVerification
-      email={email}
-      type="password_reset"
-      onSuccess={(response) => handleOTPVerified(response as { token: string })}
-      onCancel={() => setStep('email')}
-      title="Verify Reset Code"
-      description={`We've sent a 6-digit code to ${email}`}
-    />
-  );
+  const renderOTPStep = () => null;
 
   const renderPasswordStep = () => (
     <motion.div
@@ -239,7 +236,6 @@ export default function ForgetPassword({ onBack, onSuccess }: ForgetPasswordProp
   return (
     <div className="max-w-md mx-auto">
       {step === 'email' && renderEmailStep()}
-      {step === 'otp' && renderOTPStep()}
       {step === 'password' && renderPasswordStep()}
     </div>
   );
