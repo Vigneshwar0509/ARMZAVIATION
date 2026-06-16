@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-react-Bip3nFCx.js";import{h as e}from"./index-BzfjVpKe.js";import{m as i}from"./vendor-motion-IyZe_Op7.js";const u=({children:s,className:r,hoverEffect:a=!0,...o})=>t.jsx(i.div,{whileHover:a?{y:-2}:{},transition:{duration:.2,ease:"easeOut"},className:e("glass-card p-6",r),...o,children:s});export{u as G};

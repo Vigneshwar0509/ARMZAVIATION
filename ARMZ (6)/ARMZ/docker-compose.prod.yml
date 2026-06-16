@@ -17,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - appnet
 
   redis:
     image: redis:7-alpine
@@ -29,6 +31,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - appnet
 
   backend:
     build:
@@ -53,6 +57,8 @@ services:
       - backend_media:/app/media
     expose:
       - 8000
+    networks:
+      - appnet
 
   celery:
     build:
@@ -67,6 +73,8 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
     command: celery -A config.celery worker --loglevel=info
+    networks:
+      - appnet
     depends_on:
       mysql:
         condition: service_healthy
@@ -80,11 +88,13 @@ services:
     env_file:
       - ./frontend/.env.production
     environment:
-      VITE_API_BASE_URL: https://yourdomain.com/api
+      VITE_API_BASE_URL: /api
     depends_on:
       - backend
     expose:
       - 5173
+    networks:
+      - appnet
 
   nginx:
     build:

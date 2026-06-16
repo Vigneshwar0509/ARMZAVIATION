@@ -6,7 +6,7 @@ from django.db.models import Count, Q, ProtectedError
 from django.db.models.functions import TruncDate, TruncMonth
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from rest_framework import permissions, status
+from rest_framework import permissions, status, parsers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -482,6 +482,8 @@ class EventsView(APIView):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated(), IsAdminRole()]
 
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
     def get(self, request):
         return Response({"data": EventSerializer(all_events(), many=True).data})
 
@@ -495,6 +497,8 @@ class EventsView(APIView):
 @require_roles('admin')
 class EventDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
     def put(self, request, event_id):
         event = get_object_or_404(Event, pk=event_id)

@@ -84,8 +84,13 @@ def serialize_admin_user(user):
 
 
 def ensure_prime_admin(request):
-    if not request.user.is_authenticated or not request.user.is_prime_admin:
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False):
         raise PermissionDenied("Only the prime admin can manage admin accounts")
+
+    # Allow either configured prime admin (by email) or any Django superuser
+    if not (getattr(user, 'is_prime_admin', False) or getattr(user, 'is_superuser', False)):
+        raise PermissionDenied("Only the prime admin or a superuser can manage admin accounts")
 
 
 def bootstrap_prime_admin():

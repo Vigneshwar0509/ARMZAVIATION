@@ -30,6 +30,7 @@ export default function Events() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -86,38 +87,40 @@ export default function Events() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      title: formData.get("title") as string,
-      type: formData.get("type") as string,
-      date: formData.get("date") as string,
-      ...(formType === "Webinar" ? {
+    const formElem = e.currentTarget;
+    const formData = new FormData(formElem);
+    // keep FormData for file upload for Events. For Webinars send JSON.
+    let webinarJson: any = null;
+    if (formType === "Webinar") {
+      webinarJson = {
+        title: formData.get("title") as string,
+        type: formData.get("type") as string,
+        date: formData.get("date") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
         meeting_link: formData.get("meeting_link") as string,
         start_time: formData.get("date") as string,
-      } : {
-        attendees: Number(formData.get("attendees")),
-        status: formData.get("status") as string,
-      }),
-    };
+      };
+    } else {
+      if (!formData.has("attendees")) formData.append("attendees", "0");
+      if (!formData.has("status")) formData.append("status", "Upcoming");
+    }
 
     try {
       if (formType === "Webinar") {
         if (editingEvent) {
-          await apiService.updateWebinar(editingEvent.id, data);
+          await apiService.updateWebinar(editingEvent.id, webinarJson);
           toast.success("Webinar updated successfully!");
         } else {
-          await apiService.createWebinar(data);
+          await apiService.createWebinar(webinarJson);
           toast.success("Webinar created successfully!");
         }
       } else {
         if (editingEvent) {
-          await apiService.updateEvent(editingEvent.id, data);
+          await apiService.updateEvent(editingEvent.id, formData);
           toast.success("Event updated successfully!");
         } else {
-          await apiService.createEvent(data);
+          await apiService.createEvent(formData);
           toast.success("Event created successfully!");
         }
       }
@@ -415,6 +418,29 @@ export default function Events() {
                   className="w-full h-14 px-6 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                   placeholder={formType === "Webinar" ? "Aviation Webinar Series" : "Aviation Leadership Summit"}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Image (optional)</label>
+                <input
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(ev) => {
+                    const file = (ev.target as HTMLInputElement).files?.[0] ?? null;
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    } else {
+                      setImagePreview(null);
+                    }
+                  }}
+                  className="w-full text-sm text-slate-700"
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img src={imagePreview} alt="preview" className="w-full max-h-48 object-cover rounded-2xl border" />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

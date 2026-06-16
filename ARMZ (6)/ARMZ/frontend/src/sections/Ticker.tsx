@@ -1,50 +1,76 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { Plane, GraduationCap, Building2, ArrowRight } from "lucide-react";
-import { apiService } from "@/src/services/api";
 import useMarquee from "@/src/hooks/useMarquee";
 
 export default function Ticker() {
-  const [latestJob, setLatestJob] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useMarquee(containerRef, { speed: 25, pauseOnHover: true }, [latestJob?.id]);
-
-  useEffect(() => {
-    const fetchLatest = async () => {
-      try {
-        const res = await apiService.getJobs();
-        if (res.data && res.data.length > 0) {
-          setLatestJob(res.data[0]);
-        }
-      } catch (error) {
-        // Keep fallback ticker text without polluting the console in frontend-only mode.
-      }
-    };
-    fetchLatest();
-  }, []);
+  useMarquee(containerRef, { speed: 25, pauseOnHover: true }, []);
 
   const tickerItems = useMemo(
     () => [
       {
         icon: <Plane className="h-4 w-4 text-purple-100" />,
-        badge: "Latest Job",
-        text: latestJob ? `${latestJob.title} - ${latestJob.company}` : "Chief Manager - IOCC - Apply Now",
-        link: latestJob ? `/jobs/${latestJob.id}` : "/jobs"
+        badge: "Aviation News",
+        text: "3 New Airlines Get NOCs: Shankh Air • AI Hind Air • FlyExpress launching 2026",
+        link: "/contact"
       },
       {
-        icon: <GraduationCap className="h-4 w-4 text-purple-100" />,
-        badge: "OJT & Internship",
-        text: "On-the-Job Training and Internship support now open across aviation streams",
-        link: "/programs"
+        icon: <Plane className="h-4 w-4 text-purple-100" />,
+        badge: "Route Expansion",
+        text: "Star Air commits $3.06 Billion — 200+ new UDAN routes opening April–July 2026",
+        link: "/contact"
       },
       {
         icon: <Building2 className="h-4 w-4 text-purple-100" />,
-        badge: "Market Insight",
-        text: "India is among the top 3 domestic aviation markets with accelerated hiring demand",
+        badge: "Recruitment",
+        text: "AAI Recruitment portal updated 14 May 2026 — ATC & engineering vacancies live",
+        link: "/contact"
+      },
+      {
+        icon: <Plane className="h-4 w-4 text-purple-100" />,
+        badge: "Infrastructure",
+        text: "200 new modern helipads approved under UDAN 2.0 for remote & hilly regions",
+        link: "/contact"
+      },
+      {
+        icon: <Plane className="h-4 w-4 text-purple-100" />,
+        badge: "UDAN Update",
+        text: "UDAN 2.0 Approved — ₹28,840 Crore for 100 New Airports across India",
+        link: "/contact"
+      },
+      {
+        icon: <Building2 className="h-4 w-4 text-purple-100" />,
+        badge: "Hiring",
+        text: "NIA Aviation Services: Ground Staff vacancies open — May 2026",
+        link: "/contact"
+      },
+      {
+        icon: <Plane className="h-4 w-4 text-purple-100" />,
+        badge: "Pilot Hiring",
+        text: "IndiGo, Air India & Akasa Air actively recruiting hundreds of pilots in 2026",
+        link: "/contact"
+      },
+      {
+        icon: <GraduationCap className="h-4 w-4 text-purple-100" />,
+        badge: "Salaries",
+        text: "First Officer salaries: ₹1.5L–₹2.8L/mo | Captain: ₹5L–₹10L/mo at major carriers",
+        link: "/contact"
+      },
+      {
+        icon: <Building2 className="h-4 w-4 text-purple-100" />,
+        badge: "AME Demand",
+        text: "AME demand surging — MRO expansion at IndiGo, Air India Engineering & GMR",
+        link: "/contact"
+      },
+      {
+        icon: <Plane className="h-4 w-4 text-purple-100" />,
+        badge: "Vision 2047",
+        text: "India to have 350–400 airports by 2047 — Viksit Bharat vision creating lakhs of jobs",
         link: "/contact"
       }
     ],
-    [latestJob]
+    []
   );
 
   return (

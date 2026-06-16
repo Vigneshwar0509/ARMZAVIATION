@@ -233,7 +233,12 @@ class RefreshTokenView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        refresh_token = request.data.get("refreshToken") or request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        refresh_token = (
+            request.data.get("refreshToken")
+            or request.data.get("refresh")
+            or request.data.get("refresh_token")
+            or request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        )
         if not refresh_token:
             raise ValidationError({"refreshToken": "Refresh token is required"})
 
@@ -253,7 +258,12 @@ class LogoutView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        refresh_token = request.data.get("refreshToken") or request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        refresh_token = (
+            request.data.get("refreshToken")
+            or request.data.get("refresh")
+            or request.data.get("refresh_token")
+            or request.COOKIES.get(settings.AUTH_COOKIE_REFRESH)
+        )
         if refresh_token:
             try:
                 account_services.refresh_access_token(refresh_token)[1].blacklist()

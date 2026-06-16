@@ -186,6 +186,7 @@ class Event(models.Model):
     location = models.CharField(max_length=255, blank=True)
     attendees = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, default="Upcoming")
+    image = models.ImageField(upload_to="events/", null=True, blank=True)
 
 
 class EventRegistration(models.Model):

@@ -125,6 +125,15 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    if (config.url?.includes('/users')) {
+      console.log('[API] /api/users request, Authorization header:', config.headers.Authorization);
+    }
+
+    if (config.data instanceof FormData && config.headers) {
+      delete (config.headers as Record<string, unknown>)['Content-Type'];
+      delete (config.headers as Record<string, unknown>)['content-type'];
+    }
+
     config.withCredentials = true;
 
     return config;
@@ -189,9 +198,14 @@ apiClient.interceptors.response.use(
     ) {
       error.config._retry = true;
       try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        const refreshBody = refreshToken
+          ? { refreshToken, refresh: refreshToken, refresh_token: refreshToken }
+          : {};
+        console.log('[API] auth refresh request body:', refreshBody);
         const refreshResponse = await axios.post(
           `${ENV.API_BASE_URL}${REFRESH_PATH}`,
-          {},
+          refreshBody,
           {
             withCredentials: true,
             headers: { 'Content-Type': 'application/json' },
@@ -200,6 +214,8 @@ apiClient.interceptors.response.use(
         );
 
         const refreshPayload = unwrapApiEnvelope(refreshResponse.data);
+        console.log('[API] auth refresh response keys:', Object.keys(refreshResponse.data || {}));
+        console.log('[API] auth refresh response payload:', refreshResponse.data);
 
         // If refresh succeeded, retry the original request
         return apiClient(error.config);

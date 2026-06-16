@@ -44,7 +44,7 @@ export default function FeaturedEmployers() {
               Powering Careers at Top Companies
             </h3>
             <p className="text-gray-500 leading-relaxed max-w-2xl mx-auto text-sm sm:text-base">
-              Trusted hiring partnerships across airlines, aerospace leaders, and global aviation brands.
+              Professional pathway of our airlines, aerospace leaders, and global aviation brands.
             </p>
             <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
               Trusted by Industry Leaders

@@ -135,7 +135,7 @@ class AuthService {
     try {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
       const authPayload = response.data;
-      const { user, token, refreshToken } = authPayload;
+      const { user, token, accessToken, refreshToken, refresh, refresh_token } = authPayload;
 
       const normalizedUser = normalizeUser({
         ...user,
@@ -146,9 +146,12 @@ class AuthService {
         throw new Error('Administrator accounts must sign in through the admin login page.');
       }
 
-      storeAuthTokens(token, refreshToken);
+      const normalizedToken = token ?? accessToken;
+      const normalizedRefreshToken = refreshToken ?? refresh ?? refresh_token;
+
+      storeAuthTokens(normalizedToken, normalizedRefreshToken);
       toast.success(`Welcome back, ${normalizedUser.name}!`);
-      return { user: normalizedUser, token, refreshToken };
+      return { user: normalizedUser, token: normalizedToken, refreshToken: normalizedRefreshToken };
     } catch (error: any) {
       const message = error.message || error.response?.data?.message || 'Login failed';
       toast.error(message);
@@ -180,7 +183,10 @@ class AuthService {
       };
       const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, payload);
       const authPayload = response.data;
-      storeAuthTokens(authPayload?.token, authPayload?.refreshToken);
+      const { token, accessToken, refreshToken, refresh, refresh_token } = authPayload;
+      const normalizedToken = token ?? accessToken;
+      const normalizedRefreshToken = refreshToken ?? refresh ?? refresh_token;
+      storeAuthTokens(normalizedToken, normalizedRefreshToken);
         toast.success('Account created! Please check your email for the verification code.');
       return {
         ...authPayload,
@@ -218,16 +224,18 @@ class AuthService {
   async googleLogin(idToken: string): Promise<AuthResponse> {
     try {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.GOOGLE, { idToken });
-      const { user, token, refreshToken, onboardingRequired, isNewUser } = response.data;
+      const { user, token, accessToken, refreshToken, refresh, refresh_token, onboardingRequired, isNewUser } = response.data;
+      const normalizedToken = token ?? accessToken;
+      const normalizedRefreshToken = refreshToken ?? refresh ?? refresh_token;
 
       const normalizedUser = normalizeUser(user);
-      storeAuthTokens(token, refreshToken);
+      storeAuthTokens(normalizedToken, normalizedRefreshToken);
       toast.success(`Welcome, ${normalizedUser.name}!`);
       return {
         onboardingRequired,
         isNewUser,
-        token,
-        refreshToken,
+        token: normalizedToken,
+        refreshToken: normalizedRefreshToken,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -262,10 +270,22 @@ class AuthService {
 
   async refreshToken(): Promise<string> {
     try {
-      const response = await apiClient.post(API_ENDPOINTS.AUTH.REFRESH, {});
-      const { token } = response.data;
-      storeAuthTokens(token, null);
-      return token;
+      const refreshTokenValue = localStorage.getItem('refresh_token');
+      const refreshBody = refreshTokenValue
+        ? { refreshToken: refreshTokenValue, refresh: refreshTokenValue, refresh_token: refreshTokenValue }
+        : {};
+      console.log('[AUTH] refreshToken called, body:', refreshBody);
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.REFRESH, refreshBody);
+      const { token, accessToken, refreshToken: newRefreshToken, refresh, refresh_token } = response.data;
+      const normalizedToken = token ?? accessToken;
+      const normalizedRefreshToken = newRefreshToken ?? refresh ?? refresh_token ?? refreshTokenValue;
+      storeAuthTokens(normalizedToken, normalizedRefreshToken);
+      console.log('[AUTH] refreshToken response keys:', Object.keys(response.data));
+      console.log('[AUTH] stored after refresh', {
+        auth_token: localStorage.getItem('auth_token'),
+        refresh_token: localStorage.getItem('refresh_token'),
+      });
+      return normalizedToken;
     } catch (error) {
       logger.warn('Refresh token failed, clearing session');
       clearStoredAuthState();
@@ -333,15 +353,40 @@ class AuthService {
   async adminLogin(email: string, password: string): Promise<{ user: User; requiresOTP: false; token?: string; refreshToken?: string; message?: string }> {
     try {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.ADMIN_LOGIN, { email, password });
-      const { user, token, refreshToken, message } = response.data;
+      const responseKeys = Object.keys(response.data || {});
+      console.log('[AUTH] adminLogin response keys:', responseKeys);
+      console.log('[AUTH] adminLogin response payload:', response.data);
+
+      const {
+        user,
+        token,
+        accessToken,
+        refreshToken,
+        refresh,
+        refresh_token,
+        message,
+      } = response.data;
       const normalizedUser = normalizeUser(user);
+      const normalizedToken = token ?? accessToken;
+      const normalizedRefreshToken = refreshToken ?? refresh ?? refresh_token;
 
       // Store tokens immediately when provided by the server.
-      if (token || refreshToken) {
-        storeAuthTokens(token, refreshToken);
+      if (normalizedToken || normalizedRefreshToken) {
+        storeAuthTokens(normalizedToken, normalizedRefreshToken);
       }
 
-      return { user: normalizedUser, requiresOTP: false, token, refreshToken, message };
+      console.log('[AUTH] auth token stored', {
+        auth_token: localStorage.getItem('auth_token'),
+        refresh_token: localStorage.getItem('refresh_token'),
+      });
+
+      return {
+        user: normalizedUser,
+        requiresOTP: false,
+        token: normalizedToken,
+        refreshToken: normalizedRefreshToken,
+        message,
+      };
     } catch (error: any) {
       const message = error.message || error.response?.data?.message || 'Admin login failed';
       toast.error(message);

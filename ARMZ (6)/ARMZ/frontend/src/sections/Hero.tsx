@@ -172,11 +172,10 @@ export default function Hero() {
     <section
       ref={ref}
       onPointerMove={handleBackgroundPointerMove}
-      className="relative min-h-screen flex flex-col pt-16 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-24 bg-gradient-to-br from-[#f3e8ff] via-[#f9f5ff] to-[#fef7ff] overflow-hidden"
+      className="relative min-h-screen flex flex-col pt-16 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-24 bg-gradient-to-br from-[#f3e8ff] via-[#f9f5ff] to-[#fef7ff] dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden text-slate-900 dark:text-slate-100"
     >
       {/* Lilac background with subtle gradients */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#f3e8ff] via-[#f9f5ff] to-[#fef7ff]" />
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.12),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.08),_transparent_25%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.12),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.08),_transparent_25%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(148,163,184,0.14),_transparent_25%)]" />
       
       {/* Animated background elements */}
       <motion.div
@@ -387,19 +386,18 @@ export default function Hero() {
             {/* Left Content */}
             <div className="flex flex-col items-start lg:items-start">
               {/* Top Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-8 sm:mb-10 lg:mb-12"
-              >
-                <span className="inline-flex items-center px-4 sm:px-5 py-2 rounded-full border border-orange-400/40 bg-orange-100/60 text-orange-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-                  India's Premier Aviation Career Platform
-                </span>
-              </motion.div>
-
-              {/* Main Content */}
-              <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 sm:mb-10 lg:mb-12"
+            >
+              <span className="inline-flex items-center px-4 sm:px-5 py-2 rounded-full border border-orange-400/40 bg-orange-100/60 text-orange-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-200">
+                <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                India's Premier Aviation Career Platform
+              </span>
+            </motion.div>
+            {/* Main Content */}
+            <div className="max-w-3xl">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -409,15 +407,15 @@ export default function Hero() {
                   {/* Main Heading */}
                   <div className="space-y-3">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tighter">
-                      <span className="text-slate-900 block">LAUNCH YOUR</span>
-                      <span className="text-purple-600 block">AVIATION</span>
-                      <span className="text-fuchsia-600 block">CAREER</span>
+                      <span className="text-slate-900 dark:text-white block">LAUNCH YOUR</span>
+                      <span className="text-purple-600 dark:text-purple-400 block">AVIATION</span>
+                      <span className="text-slate-900 dark:text-white block">CAREER</span>
                     </h1>
                   </div>
 
                   {/* Description */}
-                  <p className="text-base sm:text-lg text-slate-700 leading-relaxed max-w-2xl">
-                    ARMZ Aviation connects <span className="font-semibold text-slate-900">aspiring aviators</span> with top recruiters, training pathways, and career-defining opportunities — all under one roof. Upskill. Subscribe. Take off.
+                  <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
+                    ARMZ Aviation connects <span className="font-semibold text-slate-900 dark:text-white">aspiring aviators</span> with top recruiters, training pathways, and career-defining opportunities — all under one roof. Upskill. Subscribe. Take off.
                   </p>
 
                   {/* Buttons */}
@@ -428,12 +426,12 @@ export default function Hero() {
                     className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 pt-4"
                   >
                     <Link to="/register" className="block">
-                      <Button className="h-12 px-8 rounded-lg bg-purple-600 text-white font-bold hover:bg-purple-700 transition-all duration-300 shadow-lg shadow-purple-600/40">
+                      <Button className="h-12 px-8 rounded-lg bg-purple-600 text-white font-bold hover:bg-purple-700 transition-all duration-300 shadow-lg shadow-purple-600/40 dark:bg-purple-600 dark:hover:bg-purple-700">
                         EXPLORE PLANS
                       </Button>
                     </Link>
                     <Link to="/contact" className="block">
-                      <Button variant="outline" className="h-12 px-8 rounded-lg border border-purple-300 bg-transparent text-slate-700 font-bold hover:bg-purple-100/50 transition-all duration-300">
+                      <Button variant="outline" className="h-12 px-8 rounded-lg border border-purple-300 bg-white dark:bg-slate-900 text-slate-700 dark:border-purple-500/50 dark:text-slate-200 hover:bg-purple-100/50 dark:hover:bg-slate-800 transition-all duration-300">
                         GLOBAL CONCLAVE 2026 →
                       </Button>
                     </Link>
@@ -451,20 +449,20 @@ export default function Hero() {
             >
               <div className="relative w-full max-w-md">
                 {/* Decorative gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-200/30 to-fuchsia-200/30 rounded-3xl blur-2xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-200/30 to-fuchsia-200/30 dark:from-purple-900/20 dark:to-fuchsia-900/20 rounded-3xl blur-2xl"></div>
                 
                 {/* Stats Card */}
-                <div className="relative backdrop-blur-md bg-white/70 rounded-3xl p-8 sm:p-10 border border-purple-200/80 shadow-2xl">
+                <div className="relative backdrop-blur-md bg-white/80 dark:bg-slate-800/60 rounded-3xl p-8 sm:p-10 border border-purple-200/80 dark:border-slate-500/40 shadow-2xl dark:shadow-slate-950/50">
                   <div className="space-y-8">
                     {/* Stat 1 */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="text-center pb-8 border-b border-purple-100/60"
+                      className="text-center pb-8 border-b border-purple-100/60 dark:border-slate-600/40"
                     >
-                      <div className="text-5xl sm:text-6xl font-black text-slate-900">5L<span className="text-orange-500">+</span></div>
-                      <div className="text-sm sm:text-base font-bold text-slate-600 uppercase tracking-widest mt-3">Earn Per Annum</div>
+                      <div className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white">5L<span className="text-orange-500 dark:text-orange-400">+</span></div>
+                      <div className="text-sm sm:text-base font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mt-3">Earn Per Annum</div>
                     </motion.div>
 
                     {/* Stat 2 */}
@@ -472,10 +470,10 @@ export default function Hero() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
-                      className="text-center pb-8 border-b border-purple-100/60"
+                      className="text-center pb-8 border-b border-purple-100/60 dark:border-slate-600/40"
                     >
-                      <div className="text-5xl sm:text-6xl font-black text-slate-900">500<span className="text-orange-500">+</span></div>
-                      <div className="text-sm sm:text-base font-bold text-slate-600 uppercase tracking-widest mt-3">Recruiters Network</div>
+                      <div className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white">500<span className="text-orange-500 dark:text-orange-400">+</span></div>
+                      <div className="text-sm sm:text-base font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mt-3">Recruiters Network</div>
                     </motion.div>
 
                     {/* Stat 3 */}
@@ -485,8 +483,8 @@ export default function Hero() {
                       transition={{ delay: 0.7 }}
                       className="text-center"
                     >
-                      <div className="text-5xl sm:text-6xl font-black text-slate-900">3</div>
-                      <div className="text-sm sm:text-base font-bold text-slate-600 uppercase tracking-widest mt-3">Career Plans</div>
+                      <div className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white">3</div>
+                      <div className="text-sm sm:text-base font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mt-3">Career Plans</div>
                     </motion.div>
                   </div>
                 </div>

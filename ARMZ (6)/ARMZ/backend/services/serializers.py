@@ -199,6 +199,7 @@ class CollegeSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False, allow_null=True, use_url=True)
     class Meta:
         model = Event
         fields = "__all__"

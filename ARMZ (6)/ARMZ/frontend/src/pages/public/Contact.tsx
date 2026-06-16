@@ -72,7 +72,7 @@ export default function Contact() {
 
               <div className="space-y-8">
                 {[
-                  { icon: Mail, title: "Email Us", detail: "ceo@armzaviation.com", sub: "Response within 24 hours", href: "mailto:ceo@armzaviation.com" },
+                  { icon: Mail, title: "Email Us", detail: "careers@armzaviation.com", sub: "Response within 24 hours", href: "mailto:careers@armzaviation.com" },
                   { icon: Phone, title: "Call Us", detail: "+91 8220551116", sub: "Also available: +91 9962551116 | +91 9962751116 | +91 9092551116", href: "tel:+918220551116" },
                   { icon: MapPin, title: "Visit Us", detail: "Plot No 2, 2nd Floor, VSR Complex, Taramani Link Road", sub: "Velachery, Chennai - 600042", href: "https://www.google.com/maps/place/ARMZ+AVIATION+(P)+LTD+-+Best+Aviation+Training+Institute/@12.9780396,80.2215581,17z" }
                 ].map((item, idx) => (
@@ -133,7 +133,7 @@ export default function Contact() {
                 {/* Overlay Content */}
                 <div className="relative z-10 flex flex-col items-center justify-center space-y-3 text-center px-6 bottom-4">
                   <div className="bg-white shadow-2xl p-6 rounded-2xl backdrop-blur-md">
-                    <p className="text-base font-bold text-slate-900">📍 ARMZ Aviation Office</p>
+                    <p className="text-base font-bold text-slate-900">📍 ARMZ AVIATION OFFICE</p>
                     <p className="text-sm font-semibold text-purple-600 mt-2">VSR Complex, Taramani</p>
                     <p className="text-xs text-slate-600 mt-1">Velachery, Chennai - 600042</p>
                     <p className="text-xs text-slate-500 mt-2 border-t pt-2">Click to open in Google Maps</p>

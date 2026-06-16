@@ -12,6 +12,7 @@ type PublicEvent = {
   type?: string;
   attendees?: number;
   status?: string;
+  image?: string;
 };
 
 const eventImages: Record<string, string> = {
@@ -80,7 +81,9 @@ export default function Events() {
               {upcomingEvents.map((event) => {
                 const type = String(event.type || "Event");
                 const normalizedType = type.toLowerCase();
-                const image = eventImages[normalizedType] || eventImages.event;
+                const image = event.image
+                  ? event.image
+                  : eventImages[normalizedType] || eventImages.event;
 
                 return (
                   <div key={event.id} className="glass-card overflow-hidden group">

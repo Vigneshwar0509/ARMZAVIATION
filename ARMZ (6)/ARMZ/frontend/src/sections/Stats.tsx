@@ -30,10 +30,10 @@ const AnimatedCounter = ({ value, suffix = "" }: { value: number; suffix?: strin
 };
 
 const statsData = [
-  { id: 1, label: "Active Students", value: 5000, suffix: "+", icon: Users },
-  { id: 2, label: "Hiring Partners", value: 50, suffix: "+", icon: MapPin },
-  { id: 3, label: "Placement Assistance", value: 100, suffix: "%", icon: Award },
-  { id: 4, label: "Training Programs", value: 15, suffix: "+", icon: GraduationCap },
+  { id: 1, label: "STUDENTS TRAINED", value: 12835, suffix: "", icon: Users },
+  { id: 2, label: "HIRING PARTNERS", value: 511, suffix: "+", icon: MapPin },
+  { id: 3, label: "JOB OPPORTUNITIES", value: 100, suffix: "%", icon: Award },
+  { id: 4, label: "TRAINING PROGRAMS", value: 41, suffix: "", icon: GraduationCap },
 ];
 
 export default function Stats() {

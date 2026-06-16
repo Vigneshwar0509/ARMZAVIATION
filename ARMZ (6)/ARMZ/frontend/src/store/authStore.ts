@@ -54,19 +54,23 @@ export const useAuthStore = create<AuthState>()(
           try {
             const stored = sessionStorage.getItem('auth-storage');
             const persistedState = stored ? JSON.parse(stored) : null;
-            
-            // If we do not have persisted auth state, bootstrapping is complete immediately.
+
+            // If we do not have persisted auth state, but tokens exist in localStorage,
+            // attempt to fetch profile using tokens. Otherwise, finish bootstrapping.
             if (!persistedState?.state?.isAuthenticated) {
-              set({ user: null, isAuthenticated: false, hasBootstrappedAuth: true, isLoading: false, error: null });
-              return;
+              const hasToken = Boolean(localStorage.getItem('auth_token') || localStorage.getItem('refresh_token'));
+              if (!hasToken) {
+                set({ user: null, isAuthenticated: false, hasBootstrappedAuth: true, isLoading: false, error: null });
+                return;
+              }
             }
 
           } catch (e) {
-            // If parsing fails, continue to try fetching the profile.
+            // If parsing fails, continue to try fetching the profile if tokens exist.
           }
 
-          // Try to fetch the profile - the backend will use the httpOnly cookie if present.
-          // Use silent mode to avoid showing error toasts during initialization.
+          // Try to fetch the profile - the backend will use the httpOnly cookie or
+          // tokens supplied by the client. Use silent mode to avoid showing error toasts during initialization.
           const user = await authService.getProfile(true);
           set({ user, isAuthenticated: true, hasBootstrappedAuth: true, isLoading: false, error: null });
         } catch (error) {

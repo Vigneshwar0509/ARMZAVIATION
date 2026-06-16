@@ -597,12 +597,14 @@ export const apiService = {
   },
 
   createEvent: async (data: any) => {
-    const response = await apiClient.post("/events", data);
+    const config: any = data instanceof FormData ? { headers: { 'Content-Type': undefined } } : undefined;
+    const response = await apiClient.post("/events", data, config);
     return { data: unwrapData(response) };
   },
 
   updateEvent: async (id: string, data: any) => {
-    const response = await apiClient.put(`/events/${id}`, data);
+    const config: any = data instanceof FormData ? { headers: { 'Content-Type': undefined } } : undefined;
+    const response = await apiClient.put(`/events/${id}`, data, config);
     return { data: unwrapData(response) };
   },
 

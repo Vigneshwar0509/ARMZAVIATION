@@ -19,11 +19,11 @@ export default memo(function Navbar() {
 
   const navLinks = [
     { name: "HOME", path: ROUTE_PATHS.home, hasDropdown: false },
-    { name: "ABOUT US", path: ROUTE_PATHS.about, hasDropdown: false },
+    { name: "WHO WE ARE", path: ROUTE_PATHS.about, hasDropdown: false },
     { name: "CLIENT", path: ROUTE_PATHS.jobs, hasDropdown: false },
     { name: "Candidates", path: ROUTE_PATHS.collaboration, hasDropdown: false },
     { name: "EVENTS", path: ROUTE_PATHS.events, hasDropdown: false },
-    { name: "CONTACT", path: ROUTE_PATHS.contact, hasDropdown: false },
+    { name: "REQUEST CREW", path: ROUTE_PATHS.contact, hasDropdown: false },
   ];
 
   const handleLogout = useCallback(async () => {
